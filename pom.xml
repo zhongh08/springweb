@@ -84,6 +84,12 @@ d
             <version>4.1.28.Final</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>26.0-jre</version>
+        </dependency>
+
     </dependencies>
 
     <build>
