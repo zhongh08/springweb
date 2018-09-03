@@ -1,10 +1,10 @@
-package com.dachen.springweb.rabbitmq;
+package com.dachen.springweb.rabbitmq.helloworld;
 
-import com.rabbitmq.client.*;
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
-import java.io.IOException;
-
-public class Customer {
+public class Producer {
 
     private final static String QUEUE_NAME = "queue_test";
 
@@ -23,24 +23,12 @@ public class Customer {
             connection = factory.newConnection();
             // 创建一个通道
             channel = connection.createChannel();
-            // 声明要关注的队列
+            // 声明一个队列
             channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-            System.out.println("Consumer Waiting Received messages");
-
-            Consumer consumer = new DefaultConsumer(channel) {
-
-                @Override
-                public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-
-                    String message = new String(body, "UTF-8");
-                    System.out.println("Consumer Received:" + message);
-
-                }
-
-            };
-
-            // 自动回复队列应答
-            channel.basicConsume(QUEUE_NAME,true,consumer);
+            // 发送消息到队列中
+            String message = "{\"temperature\":100}";
+            channel.basicPublish("",QUEUE_NAME,null,message.getBytes("UTF-8"));
+            System.out.println("Producer Send:" + message);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -57,7 +45,6 @@ public class Customer {
                 e.printStackTrace();
             }
         }
-
 
     }
 
