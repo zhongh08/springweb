@@ -1,6 +1,7 @@
 package com.dachen.springweb.redis;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.Pipeline;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -69,6 +70,28 @@ public class TestRedis {
         System.out.println(jedis.lrange("java framework",0,-1));
     }
 
+    // 测试不使用管道
+    public static void testInsert() {
+        long currentTimeMillis = System.currentTimeMillis();
+        for (int i = 0; i < 1000; i++) {
+            jedis.set("test" + i, "test" + i);
+        }
+        long endTimeMillis = System.currentTimeMillis();
+        System.out.println(endTimeMillis - currentTimeMillis);
+    }
+
+    // 测试管道
+    public static void testPip() {
+        long currentTimeMillis = System.currentTimeMillis();
+        Pipeline pipelined = jedis.pipelined();
+        for (int i = 0; i < 1000; i++) {
+            pipelined.set("bb" + i, i + "bb");
+        }
+        pipelined.sync();
+        long endTimeMillis = System.currentTimeMillis();
+        System.out.println(endTimeMillis - currentTimeMillis);
+    }
+
     public static void main(String[] args) {
         // redis存储字符串
         //testString();
@@ -78,6 +101,10 @@ public class TestRedis {
 
         // jedis操作List
         //testList();
+
+        testInsert();
+        testPip();
+
     }
 
 }
