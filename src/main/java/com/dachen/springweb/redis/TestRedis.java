@@ -1,6 +1,7 @@
 package com.dachen.springweb.redis;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPubSub;
 import redis.clients.jedis.Pipeline;
 
 import java.util.HashMap;
@@ -92,6 +93,37 @@ public class TestRedis {
         System.out.println(endTimeMillis - currentTimeMillis);
     }
 
+    // 发布频道数据
+    public static void testPubSub() {
+        //发布频道 "ch1" 和消息 "hello redis"
+        jedis.publish("ch1", "hello redis");
+    }
+
+    // 订阅频道数据
+    public static void testSubscribe() {
+        JedisPubSub jedisPubSub = new JedisPubSub() {
+
+            // 当向监听的频道发送数据时，这个方法会被触发
+            @Override
+            public void onMessage(String channel, String message) {
+                System.out.println("收到消息" + message);
+                //当收到 "unsubscribe" 消息时，调用取消订阅方法
+                if ("unsubscribe".equals(message)) {
+                    this.unsubscribe();
+                }
+            }
+
+            // 当取消订阅指定频道的时候，这个方法会被触发
+            @Override
+            public void onUnsubscribe(String channel, int subscribedChannels) {
+                System.out.println("取消订阅频道" + channel);
+            }
+
+        };
+        // 订阅之后，当前进程一致处于监听状态，当被取消订阅之后，当前进程会结束
+        jedis.subscribe(jedisPubSub, "ch1");
+    }
+
     public static void main(String[] args) {
         // redis存储字符串
         //testString();
@@ -102,8 +134,11 @@ public class TestRedis {
         // jedis操作List
         //testList();
 
-        testInsert();
-        testPip();
+        //testInsert();
+        //testPip();
+
+        testPubSub();
+        testSubscribe();
 
     }
 
